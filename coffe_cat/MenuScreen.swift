@@ -17,8 +17,13 @@ struct MenuScreen: View {
                 if isLoading {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: AppColors.darkGray))
+                        .scaleEffect(1.5)
                 } else if let error = errorMessage {
                     VStack(spacing: 20) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 50))
+                            .foregroundColor(.red)
+                        
                         Text(error)
                             .foregroundColor(.red)
                             .multilineTextAlignment(.center)
@@ -27,13 +32,17 @@ struct MenuScreen: View {
                         Button("Reintentar") {
                             loadDrinks()
                         }
-                        .foregroundColor(AppColors.darkBrown)
+                        .foregroundColor(.white)
                         .padding()
-                        .background(Color.white)
-                        .cornerRadius(10)
+                        .background(AppColors.darkBrown)
+                        .cornerRadius(15)
                     }
                 } else if drinks.isEmpty {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 25) {
+                        Image(systemName: "cup.and.saucer.fill")
+                            .font(.system(size: 60))
+                            .foregroundColor(AppColors.darkBrown)
+                        
                         Text("No hay productos disponibles")
                             .font(.title2)
                             .foregroundColor(AppColors.darkGray)
@@ -41,18 +50,21 @@ struct MenuScreen: View {
                         Button(action: {
                             navigationManager.navigateTo(.addProduct)
                         }) {
-                            Text("Agregar Producto")
-                                .foregroundColor(.white)
-                                .padding()
-                                .background(AppColors.darkBrown)
-                                .cornerRadius(10)
+                            HStack {
+                                Image(systemName: "plus.circle.fill")
+                                Text("Agregar Producto")
+                            }
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(AppColors.darkBrown)
+                            .cornerRadius(15)
                         }
                     }
                 } else {
                     ScrollView {
                         LazyVGrid(columns: [
-                            GridItem(.flexible()),
-                            GridItem(.flexible())
+                            GridItem(.flexible(), spacing: 20),
+                            GridItem(.flexible(), spacing: 20)
                         ], spacing: 20) {
                             ForEach(drinks) { drink in
                                 DrinkCard(drink: drink) {
@@ -66,18 +78,25 @@ struct MenuScreen: View {
             }
             .navigationTitle("Menú")
             .navigationBarItems(
-                leading: Button("Cerrar Sesión") {
+                leading: Button(action: {
                     do {
                         try Auth.auth().signOut()
                         navigationManager.handleLogout()
                     } catch {
                         errorMessage = "Error al cerrar sesión: \(error.localizedDescription)"
                     }
+                }) {
+                    HStack {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                        Text("Cerrar Sesión")
+                    }
+                    .foregroundColor(AppColors.darkBrown)
                 },
                 trailing: Button(action: {
                     navigationManager.navigateTo(.addProduct)
                 }) {
-                    Image(systemName: "plus")
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
                         .foregroundColor(AppColors.darkBrown)
                 }
             )
@@ -116,13 +135,18 @@ struct DrinkCard: View {
                     Image(uiImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(height: 150)
+                        .frame(height: 180)
                         .frame(maxWidth: .infinity)
                         .clipped()
                 } else {
                     Color.gray
-                        .frame(height: 150)
+                        .frame(height: 180)
                         .frame(maxWidth: .infinity)
+                        .overlay(
+                            Image(systemName: "cup.and.saucer.fill")
+                                .font(.system(size: 40))
+                                .foregroundColor(.white)
+                        )
                 }
                 
                 VStack(alignment: .leading, spacing: 8) {
@@ -131,17 +155,25 @@ struct DrinkCard: View {
                         .foregroundColor(AppColors.darkGray)
                         .lineLimit(1)
                     
-                    Text("$\(String(format: "%.2f", drink.price))")
-                        .font(.subheadline)
-                        .foregroundColor(AppColors.darkBrown)
+                    HStack {
+                        Text("$\(String(format: "%.2f", drink.price))")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .foregroundColor(AppColors.darkBrown)
+                        
+                        Spacer()
+                        
+                        Image(systemName: "chevron.right.circle.fill")
+                            .foregroundColor(AppColors.darkBrown)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 12)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 15)
             }
             .background(Color.white)
-            .cornerRadius(10)
-            .shadow(radius: 2)
+            .cornerRadius(15)
+            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
         }
     }
 }

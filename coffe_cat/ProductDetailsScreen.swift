@@ -19,31 +19,44 @@ struct ProductDetailsScreen: View {
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 25) {
                         if let image = drink.image {
                             Image(uiImage: image)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(height: 300)
                                 .clipped()
+                                .cornerRadius(20)
+                                .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
                         } else {
                             Color.gray
                                 .frame(height: 300)
+                                .cornerRadius(20)
+                                .overlay(
+                                    Image(systemName: "cup.and.saucer.fill")
+                                        .font(.system(size: 60))
+                                        .foregroundColor(.white)
+                                )
                         }
                         
-                        VStack(alignment: .leading, spacing: 15) {
-                            Text(drink.name)
-                                .font(.title)
-                                .foregroundColor(AppColors.darkGray)
-                            
-                            Text(drink.description)
-                                .foregroundColor(AppColors.darkGray)
-                            
-                            Text("$\(String(format: "%.2f", drink.price))")
-                                .font(.title2)
-                                .foregroundColor(AppColors.darkBrown)
-                            
+                        VStack(alignment: .leading, spacing: 20) {
                             VStack(alignment: .leading, spacing: 8) {
+                                Text(drink.name)
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(AppColors.darkGray)
+                                
+                                Text(drink.description)
+                                    .foregroundColor(AppColors.darkGray)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                
+                                Text("$\(String(format: "%.2f", drink.price))")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(AppColors.darkBrown)
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 12) {
                                 Text("Tamaño")
                                     .font(.headline)
                                     .foregroundColor(AppColors.darkGray)
@@ -54,9 +67,11 @@ struct ProductDetailsScreen: View {
                                     }
                                 }
                                 .pickerStyle(SegmentedPickerStyle())
+                                .background(Color.white)
+                                .cornerRadius(10)
                             }
                             
-                            VStack(alignment: .leading, spacing: 8) {
+                            VStack(alignment: .leading, spacing: 12) {
                                 Text("Cantidad")
                                     .font(.headline)
                                     .foregroundColor(AppColors.darkGray)
@@ -64,35 +79,50 @@ struct ProductDetailsScreen: View {
                                 HStack {
                                     Button(action: { if quantity > 1 { quantity -= 1 } }) {
                                         Image(systemName: "minus.circle.fill")
+                                            .font(.title2)
                                             .foregroundColor(AppColors.darkBrown)
                                     }
                                     
                                     Text("\(quantity)")
+                                        .font(.title3)
+                                        .fontWeight(.bold)
                                         .frame(minWidth: 40)
+                                        .foregroundColor(AppColors.darkGray)
                                     
                                     Button(action: { quantity += 1 }) {
                                         Image(systemName: "plus.circle.fill")
+                                            .font(.title2)
                                             .foregroundColor(AppColors.darkBrown)
                                     }
                                 }
+                                .padding()
+                                .background(Color.white)
+                                .cornerRadius(10)
                             }
                             
-                            VStack(alignment: .leading, spacing: 8) {
+                            VStack(alignment: .leading, spacing: 12) {
                                 Text("Dirección de entrega")
                                     .font(.headline)
                                     .foregroundColor(AppColors.darkGray)
                                 
                                 TextEditor(text: $deliveryAddress)
                                     .frame(height: 100)
-                                    .padding(4)
+                                    .padding(8)
                                     .background(Color.white)
-                                    .cornerRadius(5)
+                                    .cornerRadius(10)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                                    )
                             }
                             
                             if let error = errorMessage {
                                 Text(error)
                                     .foregroundColor(.red)
+                                    .multilineTextAlignment(.center)
                                     .padding()
+                                    .background(Color.red.opacity(0.1))
+                                    .cornerRadius(10)
                             }
                             
                             Button(action: placeOrder) {
@@ -100,14 +130,18 @@ struct ProductDetailsScreen: View {
                                     ProgressView()
                                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                 } else {
-                                    Text("Ordenar")
-                                        .foregroundColor(.white)
+                                    HStack {
+                                        Image(systemName: "bag.fill")
+                                        Text("Ordenar")
+                                    }
+                                    .foregroundColor(.white)
                                 }
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(AppColors.darkBrown)
-                            .cornerRadius(10)
+                            .cornerRadius(15)
+                            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                             .disabled(isLoading || isOrdered)
                         }
                         .padding()
@@ -116,8 +150,14 @@ struct ProductDetailsScreen: View {
             }
             .navigationTitle("Detalles del Producto")
             .navigationBarItems(
-                leading: Button("Regresar") {
+                leading: Button(action: {
                     navigationManager.navigateTo(.menu)
+                }) {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                        Text("Regresar")
+                    }
+                    .foregroundColor(AppColors.darkBrown)
                 }
             )
             .onChange(of: isOrdered) { newValue in
